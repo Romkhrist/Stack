@@ -3,6 +3,12 @@
 #include <string>
 
 template<typename T>
+class Stack;
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const Stack<T>& s);
+
+template<typename T>
 class Stack
 {
     public:
@@ -13,7 +19,7 @@ class Stack
         T    pop();
 
         inline T    peek() const;
-        inline bool empty() const;
+        inline bool is_empty() const;
         inline void clear();
 
     private:
@@ -23,15 +29,16 @@ class Stack
             T value;
             node* next;
         } *top;
-    
-    template<typename T1>
-    friend std::ostream& operator<<(std::ostream& os, const Stack<T1>& s);
+        
+        std::size_t _size;
+
+    friend std::ostream& operator<<<>(std::ostream& os, const Stack<T>& s);
 };
 
 
 
 template<typename T>
-Stack<T>::Stack():top(nullptr)
+Stack<T>::Stack():top(nullptr), _size(0)
 {}
 
 template<typename T>
@@ -43,16 +50,18 @@ Stack<T>::~Stack()
 template<typename T>
 void Stack<T>::push(const T& value) 
 {
-    node* tmp  = new node;
+    node *tmp  = new node;
     tmp->value = value;
     tmp->next  = top;
     top        = tmp;
+    
+    ++_size;
 }
 
 template<typename T>
 T Stack<T>::pop()
 {
-    if (empty())
+    if (is_empty())
     {
         throw "Stack is empty!";
     }
@@ -62,6 +71,8 @@ T Stack<T>::pop()
     
     delete top;
     top = tmp;
+    
+    --_size;
         
     return value;
 }
@@ -70,7 +81,7 @@ T Stack<T>::pop()
 template<typename T>
 inline T Stack<T>::peek() const
 {
-    if (empty())
+    if (is_empty())
     {
         throw "Stack is empty!";
     }
@@ -79,7 +90,7 @@ inline T Stack<T>::peek() const
 }
 
 template<typename T>
-inline bool Stack<T>::empty() const
+inline bool Stack<T>::is_empty() const
 {
     return !top;
 }
@@ -87,18 +98,19 @@ inline bool Stack<T>::empty() const
 template<typename T>
 inline void Stack<T>::clear()
 {
-    while(!empty())
+    while(!is_empty())
     {
         pop();
     }
     
-    top = nullptr;
+    top   = nullptr;
+    _size = 0;
 }
 
-template<typename T1>
-std::ostream& operator<<(std::ostream& os, const Stack<T1>& s)
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const Stack<T>& s)
 {
-    typename Stack<T1>::node *tmp = s.top;
+    auto tmp = s.top;
     
     while(tmp)
     {
